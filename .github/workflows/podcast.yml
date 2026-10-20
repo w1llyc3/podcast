@@ -1,39 +1,10 @@
-name: Podcast pipeline
+name: Legacy cloud pipeline (disabled)
+# Replaced by hybrid Mode C: cloud RSS watch + local Windows worker.
+# Manual only and deliberately never runs a production job.
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "13 * * * *"
-permissions:
-  contents: read
-concurrency:
-  group: podcast
-  cancel-in-progress: false
 jobs:
-  process:
-    if: ${{ vars.PODCAST_ENABLED == 'true' || github.event_name == 'workflow_dispatch' }}
+  notice:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: pip
-      - run: sudo apt-get update && sudo apt-get install -y ffmpeg rclone fonts-noto-cjk
-      - run: pip install -r requirements.txt
-      - name: Configure archive (never print secrets)
-        env:
-          RCLONE_CONFIG_B64: ${{ secrets.RCLONE_CONFIG_B64 }}
-        run: |
-          if [ -z "$RCLONE_CONFIG_B64" ]; then
-            echo "::error::Missing RCLONE_CONFIG_B64 secret"; exit 1
-          fi
-          mkdir -p "$HOME/.config/rclone"
-          printf '%s' "$RCLONE_CONFIG_B64" | base64 --decode > "$HOME/.config/rclone/rclone.conf"
-          chmod 600 "$HOME/.config/rclone/rclone.conf"
-      - name: Run pipeline
-        env:
-          ARCHIVE_REMOTE: ${{ vars.ARCHIVE_REMOTE || 'podcastdrive:Podcast Library' }}
-          WHISPER_MODEL: ${{ vars.WHISPER_MODEL || 'small' }}
-          EPISODE_ID: ${{ vars.EPISODE_ID }}
-        run: python pipeline.py
+      - run: echo "Disabled legacy cloud transcription. Use RSS Watch workflow instead."
