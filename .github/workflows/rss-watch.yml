@@ -1,0 +1,31 @@
+name: RSS Watch
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: podcast-rss-watch
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install "feedparser>=6.0.11,<7"
+      - run: python scripts/rss_watch.py
+      - name: Save updated queue
+        run: |
+          git config user.name "podcast-rss-bot"
+          git config user.email "podcast-rss-bot@users.noreply.github.com"
+          git add queue/state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update podcast RSS episode queue"
+            git push
+          fi
