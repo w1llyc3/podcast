@@ -27,13 +27,14 @@ def verify(root,resume=False):
         assert page_text[0].startswith(first)
         page_text[0]=page_text[0][len(first):]
         extracted=''.join(page_text)
-        assert normalize(txt)==normalize(''.join(s['text'] for s in raw['segments']))
-        assert all(normalize(s['text']) in normalize(extracted) for s in raw['segments'])
+        assert normalize(txt)==normalize(''.join(s['text'] for s in raw['segments']).replace('\ufffd','【识别不清】'))
+        assert all(normalize(s['text'].replace('\ufffd','【识别不清】')) in normalize(extracted) for s in raw['segments'])
         assert normalize(txt)==extracted
         assert not re.search(r'\[\d+:\d+',txt)
         assert all(len(p.extract_text().strip())>50 for p in reader.pages)
         assert raw['complete'] and raw['chunks'][0]['start']==0
-        assert abs(raw['chunks'][-1]['end']-metadata['audio']['duration_seconds'])<.01
+        source_duration=metadata['audio'].get('compression',{}).get('source_duration_seconds',metadata['audio']['duration_seconds'])
+        assert abs(raw['chunks'][-1]['end']-source_duration)<.01
         assert all(abs(a['end']-b['start'])<.01 for a,b in zip(raw['chunks'],raw['chunks'][1:]))
         doc=fitz.open(dest/'transcript.pdf')
         for i,p in enumerate(doc):p.get_pixmap(matrix=fitz.Matrix(1.25,1.25)).save(str(evidence/f'page-{i+1}.png'))
@@ -41,12 +42,13 @@ def verify(root,resume=False):
         from fontTools.ttLib import TTFont
         font=TTFont(r'C:\Windows\Fonts\simhei.ttf')
         cmap=font.getBestCmap()
+        cmap.update(TTFont(r'C:\Windows\Fonts\arial.ttf').getBestCmap())
         missing=sorted({c for c in metadata['title']+txt if not c.isspace() and ord(c) not in cmap})
         assert not missing,missing
-        result={'path':str(dest),'pages':len(reader.pages),'segments':len(raw['segments']),'paragraphs':len(w.reading_paragraphs(raw['segments'])),'txt_characters':len(txt),'all_segments_extractable':True,'raw_txt_exact_match':True,'no_timestamp_tokens':True,'no_empty_pages':True,'missing_font_glyphs':missing,'page_characters':[len(p.extract_text()) for p in reader.pages],'audio':metadata['audio'],'sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in dest.iterdir() if p.name in ('audio.m4a','transcript.raw.json','transcript.txt','transcript.pdf','metadata.json','summary.md')}}
+        result={'path':str(dest),'pages':len(reader.pages),'segments':len(raw['segments']),'paragraphs':len(w.reading_paragraphs(raw['segments'])),'txt_characters':len(txt),'all_segments_extractable':True,'raw_txt_exact_match':True,'no_timestamp_tokens':True,'no_empty_pages':True,'missing_font_glyphs':missing,'page_characters':[len(p.extract_text()) for p in reader.pages],'audio':metadata['audio'],'sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in dest.iterdir() if p.name in ('audio.m4a','audio.mp3','transcript.raw.json','transcript.txt','transcript.pdf','metadata.json','summary.md')}}
         w.atomic_json(evidence/'episode-queue.json',{'pending':[metadata]})
         if resume:
-            audio,_=w.decode_audio(dest/'audio.m4a')
+            audio,_=w.decode_audio(w.audio_path(dest))
             checkpoint=json.loads(json.dumps(raw))
             last=checkpoint['chunks'].pop()
             checkpoint['segments']=[s for s in checkpoint['segments'] if s['start']<last['start']]

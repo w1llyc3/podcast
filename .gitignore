@@ -23,6 +23,8 @@ index.csv
 notification-outbox.json
 notification-seen.json
 .worker.lock
+audio.compression.json
+.audio-backups/
 rclone.conf
 credentials*.json
 token*.json

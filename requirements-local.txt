@@ -6,3 +6,4 @@ fonttools>=4.0,<5
 filelock>=3.10,<5
 av>=14,<17
 numpy>=1.26,<3
+imageio-ffmpeg>=0.6,<0.7

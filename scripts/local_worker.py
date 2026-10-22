@@ -14,9 +14,12 @@ import av
 import numpy as np
 from study_notes import build_notes
 import csv, io
+import unicodedata
+from audio_compression import ensure_compressed_audio, is_compressed_audio, cleanup_original
 
 QUEUE_URL = "https://raw.githubusercontent.com/w1llyc3/podcast/main/queue/state.json"
 FONT = "PodcastChinese"
+FALLBACK_FONT = "PodcastFallback"
 
 def atomic_json(path, value):
     tmp = path.with_suffix(path.suffix + ".tmp")
@@ -35,8 +38,38 @@ def sha256_file(path):
 def completed_valid(prior):
     if not prior:return False
     dest=Path(prior['path'])
-    if not all((dest/name).is_file() for name in ('audio.m4a','transcript.raw.json','transcript.txt','transcript.pdf','metadata.json','summary.md')):return False
+    if not audio_path(dest).is_file():return False
+    if not all((dest/name).is_file() for name in ('transcript.raw.json','transcript.txt','transcript.pdf','metadata.json','summary.md')):return False
     return all(sha256_file(dest/name)==digest for name,digest in prior.get('hashes',{}).items())
+
+def audio_path(dest):
+    metadata=read_json(dest/'metadata.json',{})
+    candidate=metadata.get('outputs',{}).get('audio')
+    if candidate:
+        path=Path(candidate)
+        if path.resolve().parent!=dest.resolve():raise ValueError('Audio path must stay in its episode directory')
+        return path
+    return dest/('audio.m4a' if (dest/'audio.m4a').exists() else 'audio.mp3' if (dest/'audio.mp3').exists() else 'audio.m4a')
+
+def completion_record(dest, title, audiofile, probe):
+    return {'path':str(dest), 'title':title, 'audio_sha256':probe['sha256'],
+            'original_audio_sha256':probe.get('compression',{}).get('source_sha256',probe['sha256']),
+            'hashes':{p.name:sha256_file(p) for p in [audiofile,*[dest/name for name in ('transcript.raw.json','transcript.txt','transcript.pdf','metadata.json','summary.md')]]}}
+
+def migrate_delivery(prior, output):
+    """Upgrade a finished archive without loading Whisper or changing its text/PDF."""
+    dest=Path(prior['path']);metadata=read_json(dest/'metadata.json',{})
+    source=audio_path(dest)
+    if is_compressed_audio(metadata.get('audio',{}),source):
+        return prior,source,metadata['audio']
+    audio,probe=decode_audio(source)
+    del audio
+    target,encoded=ensure_compressed_audio(source,output,probe,metadata.get('audio'))
+    metadata['audio']=encoded;metadata['outputs']['audio']=str(target)
+    raw=read_json(dest/'transcript.raw.json',{})
+    metadata.setdefault('transcription',{})['source_audio_sha256']=raw.get('fingerprint',{}).get('audio_sha256')
+    atomic_json(dest/'metadata.json',metadata)
+    return completion_record(dest,prior['title'],target,encoded),target,encoded
 
 def write_index(output,completed,states):
     rows=[]
@@ -61,6 +94,9 @@ def register_font():
     if not font.exists():
         raise RuntimeError("Set PODCAST_FONT to a Chinese TrueType font")
     pdfmetrics.registerFont(TTFont(FONT, str(font)))
+    fallback = Path(os.environ.get("PODCAST_FALLBACK_FONT", r"C:\Windows\Fonts\arial.ttf"))
+    if fallback.exists():
+        pdfmetrics.registerFont(TTFont(FALLBACK_FONT, str(fallback)))
 
 def safe_filename(s):
     s = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", s).strip(" .")[:60] or "episode"
@@ -68,26 +104,50 @@ def safe_filename(s):
 
 def draw_pdf(path, title, chunks, url=""):
     register_font()
+    primary_glyphs = pdfmetrics.getFont(FONT).face.charToGlyph
+    fallback_glyphs = pdfmetrics.getFont(FALLBACK_FONT).face.charToGlyph if FALLBACK_FONT in pdfmetrics.getRegisteredFontNames() else {}
+    def font_for(ch):
+        if ord(ch) in primary_glyphs:return FONT
+        if ord(ch) in fallback_glyphs:return FALLBACK_FONT
+        raise RuntimeError(f"No PDF font glyph for U+{ord(ch):04X}")
     c = canvas.Canvas(str(path), pagesize=A4); w, h = A4
     page = 1; y = h - 62
     def footer():
         c.setFont(FONT, 8);c.setFillGray(.5)
         c.drawString(48, 34, "完整文字稿 · 无时间线")
         c.drawRightString(w-48, 34, f"第 {page} 页")
-    def write(s, size=11, leading=20):
+    def write(s, size=11, leading=18.5):
         nonlocal y, page
-        line = ""
+        def draw_line(line):
+            c.setFillGray(.12)
+            text=c.beginText(50,y)
+            current_font=None;run=""
+            def emit_run(selected_font,value):
+                # Place an RTL-only run in visual order; PDF extractors restore
+                # its logical order. Keep the original transcript untouched.
+                if value and all(unicodedata.bidirectional(ch) in ("R","AL","NSM") for ch in value):value=value[::-1]
+                text.setFont(selected_font,size);text.textOut(value)
+            for ch in line:
+                selected_font=font_for(ch)
+                if selected_font!=current_font:
+                    if run:emit_run(current_font,run)
+                    current_font=selected_font;run=""
+                run+=ch
+            if run:emit_run(current_font,run)
+            c.drawText(text)
+        line = "";line_width=0
         for ch in s:
-            if pdfmetrics.stringWidth(line+ch,FONT,size) > w-100 and line:
+            width=pdfmetrics.stringWidth(ch,font_for(ch),size)
+            if line_width+width > w-100 and line:
                 if y < 72:
                     footer();c.showPage();page+=1;y=h-56
-                c.setFillGray(.12);c.setFont(FONT,size);c.drawString(50,y,line)
-                y-=leading;line=""
-            line+=ch
+                draw_line(line)
+                y-=leading;line="";line_width=0
+            line+=ch;line_width+=width
         if line:
             if y < 72:
                 footer();c.showPage();page+=1;y=h-56
-            c.setFillGray(.12);c.setFont(FONT,size);c.drawString(50,y,line)
+            draw_line(line)
             y-=leading
     write(title, 16, 26);y-=18
     if url:
@@ -185,7 +245,7 @@ def reading_paragraphs(segments):
     """Group consecutive ASR segments without rewriting any recognized words."""
     paragraphs=[];current=""
     for i,segment in enumerate(segments):
-        text=segment["text"]
+        text=segment["text"].replace("\ufffd", "【识别不清】")
         separator=" " if current and current[-1].isascii() and text[0].isascii() else ""
         current+=separator+text
         gap=(segments[i+1]["start"]-segment["end"]) if i+1<len(segments) else 0
@@ -224,12 +284,29 @@ def consume(output,model_name,max_items,episode_id,queue_file,attempts,reprocess
         key=item["key"]
         prior=completed.get(key)
         if not reprocess and completed_valid(prior):
-            if not prior.get('hashes'):
-                prior['hashes']={name:sha256_file(Path(prior['path'])/name) for name in ('audio.m4a','transcript.raw.json','transcript.txt','transcript.pdf','metadata.json','summary.md')}
-                atomic_json(donefile,completed)
-            states.setdefault(key,{'attempts':0}).update(status='completed',path=prior['path'],error=None)
-            atomic_json(statefile,states)
-            logging.info("Already completed; skipped %s",key)
+            ready=is_compressed_audio(read_json(Path(prior['path'])/'metadata.json',{}).get('audio',{}),audio_path(Path(prior['path'])))
+            if not ready:
+                if processed>=max_items:break
+                processed+=1
+            for attempt in range(1 if ready else attempts):
+                try:
+                    record,target,encoded=migrate_delivery(prior,output)
+                    completed[key]=record
+                    if not record.get('hashes'):completed[key]=completion_record(Path(prior['path']),prior['title'],target,encoded)
+                    atomic_json(donefile,completed)
+                    states.setdefault(key,{'attempts':0}).update(status='completed',path=prior['path'],error=None)
+                    atomic_json(statefile,states)
+                    write_index(output,completed,states)
+                    try:cleanup_original(target,encoded,output)
+                    except Exception:logging.exception('Source cleanup deferred; backup and compressed output retained')
+                    logging.info("Already completed; skipped %s" if ready else "Compressed existing archive without retranscription: %s",key)
+                    break
+                except Exception as exc:
+                    states.setdefault(key,{'attempts':0}).update(status='failed',path=prior['path'],error=f'{type(exc).__name__}: {exc}')
+                    atomic_json(statefile,states);write_index(output,completed,states)
+                    logging.exception('Archive compression failed: %s',key)
+                    if attempt+1==attempts or ready:failures+=1
+                    else:time.sleep(min(2**attempt,8))
             continue
         if processed >= max_items: break
         processed+=1
@@ -245,12 +322,15 @@ def consume(output,model_name,max_items,episode_id,queue_file,attempts,reprocess
             atomic_json(statefile,states)
             try:
                 if not item.get("audio_url"): raise RuntimeError("Missing public audio URL")
-                audiofile=dest/"audio.m4a"
-                if not audiofile.exists(): download(item["audio_url"],audiofile)
+                audiofile=audio_path(dest)
+                if not audiofile.exists():
+                    if audiofile.suffix.lower()!='.m4a':
+                        raise RuntimeError('Compressed archive audio is missing; restore its backup before retrying')
+                    download(item["audio_url"],audiofile)
                 try:
                     audio,probe=decode_audio(audiofile)
                 except Exception:
-                    audiofile.replace(dest/("audio.invalid-"+str(time.time_ns())+".m4a"))
+                    audiofile.replace(dest/("audio.invalid-"+str(time.time_ns())+audiofile.suffix))
                     raise
                 duration=item.get("rss_duration", "")
                 if duration:
@@ -259,7 +339,13 @@ def consume(output,model_name,max_items,episode_id,queue_file,attempts,reprocess
                     if abs(probe["duration_seconds"]-expected)>max(3,expected*.01):
                         raise RuntimeError("RSS duration differs from decoded audio; possible preview")
                 prompt=f"《{item['feed_name']}》，{item['title']}。以下是简体中文播客逐字稿，包含自然标点。"
-                fingerprint={"audio_sha256":probe["sha256"],"model":model_name,"chunk_seconds":90,"language":"zh","beam_size":5,"initial_prompt":prompt}
+                prior_metadata=read_json(dest/'metadata.json',{})
+                compression=prior_metadata.get('audio',{}).get('compression',{})
+                source_sha=probe['sha256']
+                if compression and prior_metadata['audio'].get('sha256')==probe['sha256']:
+                    source_sha=prior_metadata.get('transcription',{}).get('source_audio_sha256') or compression['source_sha256']
+                    probe['compression']=compression
+                fingerprint={"audio_sha256":source_sha,"model":model_name,"chunk_seconds":90,"language":"zh","beam_size":5,"initial_prompt":prompt}
                 rawfile=dest/"transcript.raw.json"
                 raw=read_json(rawfile,{})
                 if not raw.get("complete"):
@@ -278,12 +364,16 @@ def consume(output,model_name,max_items,episode_id,queue_file,attempts,reprocess
                 tmp=pdf.with_suffix(".tmp");draw_pdf(tmp,item["title"],chunks,item.get("url",""));tmp.replace(pdf)
                 summary=dest/"summary.md"
                 tmp=summary.with_suffix(".tmp");tmp.write_text(build_notes(item["title"],chunks,raw["segments"]),encoding="utf-8");tmp.replace(summary)
-                atomic_json(dest/"metadata.json",{**item,"audio":probe,"transcription":{"model":model_name,"device":"cpu","compute_type":"int8","complete":True,"chunks":len(raw["chunks"]),"segments":len(raw["segments"]),"paragraphs":len(chunks),"human_reviewed":False,"boundary_note":"Independent 90-second chunks; boundary wording requires review"},"summary_status":"local_extractive_unreviewed","outputs":{"audio":str(audiofile),"txt":str(txt),"pdf":str(pdf),"summary":str(summary)},"completed_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())})
-                completed[key]={"path":str(dest),"title":item["title"],"audio_sha256":probe["sha256"],"hashes":{p.name:sha256_file(p) for p in (audiofile,rawfile,txt,pdf,summary,dest/"metadata.json")}}
+                state['stage']='compressing_audio';atomic_json(statefile,states)
+                audiofile,probe=ensure_compressed_audio(audiofile,output,probe,prior_metadata.get('audio'))
+                atomic_json(dest/"metadata.json",{**item,"audio":probe,"transcription":{"source_audio_sha256":fingerprint["audio_sha256"],"model":model_name,"device":"cpu","compute_type":"int8","complete":True,"chunks":len(raw["chunks"]),"segments":len(raw["segments"]),"paragraphs":len(chunks),"human_reviewed":False,"boundary_note":"Independent 90-second chunks; boundary wording requires review"},"summary_status":"local_extractive_unreviewed","outputs":{"audio":str(audiofile),"txt":str(txt),"pdf":str(pdf),"summary":str(summary)},"completed_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())})
+                completed[key]=completion_record(dest,item['title'],audiofile,probe)
                 atomic_json(donefile,completed)
-                state.update(status="completed",error=None)
+                state.update(status="completed",stage="completed",error=None)
                 atomic_json(statefile,states)
                 write_index(output,completed,states)
+                try:cleanup_original(audiofile,probe,output)
+                except Exception:logging.exception('Source cleanup deferred; backup and compressed output retained')
                 logging.info("Completed %s",key)
                 break
             except Exception as exc:

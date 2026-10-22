@@ -8,7 +8,7 @@
 - GitHub 工作流：`.github/workflows/rss-watch.yml`；首次运行仅登记历史节目基线，之后只追加新节目。
 - 新节目信息公开保存在 `queue/state.json`（标题、公开地址，不含转录全文）。
 - Windows 转写：`scripts/local_worker.py`；运行 `run-local.ps1`。
-- 固定归档根目录 `D:\podcast`，每期包含原始音频、带时间分段 JSON、无时间戳 TXT/PDF、元数据和本地摘录式学习笔记。
+- 固定归档根目录 `D:\podcast`，每期包含压缩音频、带时间分段 JSON、无时间戳 TXT/PDF、元数据和本地摘录式学习笔记。
 - 学习笔记为免费本地原文摘录，带段落来源与核验清单；不是高质量生成式总结。人物分离尚未实现。当前 Codex 聊天可配置本地完成通知，ChatGPT 网页独立投递桥接尚未实现。Drive 提供显式选择的 rclone 复制工具，默认 dry-run，尚未真实上传验收。
 - 公开仓库请勿提交完整音频、转写全文、秘钥或个人批注。
 - 首次运行不会把已有历史节目加入待处理队列。
@@ -16,7 +16,7 @@
 
 ## Windows 首次运行
 
-1. 安装 Python 3.12（含 `py` 启动器）。PyAV 自带解码组件，无需独立 FFmpeg。
+1. 安装 Python 3.12（含 `py` 启动器）。PyAV 自带解码组件；imageio-ffmpeg 依赖提供压缩用 FFmpeg，也可通过 PODCAST_FFMPEG 指定本机程序。
 2. 下载或 clone 仓库：`git clone https://github.com/w1llyc3/podcast.git`
 3. GitHub → Actions → **RSS Watch** → Run workflow，运行初始基线；检查 `queue/state.json`。
 4. 未来发现新节目后，在 PowerShell 中进入仓库并运行 `.\\run-local.ps1`。首次会安装依赖及下载免费本地 Whisper 模型；已有环境需要更新依赖时加 `-InstallDependencies`。
@@ -65,3 +65,13 @@
 ```
 
 当前环境未配置 rclone/remote，因此上传未启用、未实测；不把代码存在视作归档成功。公开仓库仅存代码、公开 RSS 元数据和脱敏验收结果。完整音频/转录/笔记/日志/模型禁止提交。
+
+## 自动音频压缩
+
+以后每集必须完成压缩与验收才标记 completed，交付音频固定为 `audio.mp3`：MP3 / 48 kbps / 24 kHz。单声道或高度相似的双声道合并为单声道；疑似独立声道保留立体声并在元数据记录，避免丢失单侧内容。声道判断是相似度规则，不是人物识别。
+
+转录先使用下载原文件，压缩不降低本次识别输入质量。原文件先复制到输出根目录的 `.audio-backups/automatic` 并校验 SHA256；压缩文件通过完整解码、编码参数与时长检查（差值不超过 0.25 秒），所有产物和完成索引写入后才移除节目目录内的原文件。备份仅本地保留，可供人工恢复。
+
+压缩失败会重试并复用已完成的转录检查点；压缩收据支持中断后恢复，已验证的 MP3 不重复有损编码。队列遇到旧版已完成归档时，仅迁移音频，不重写 TXT/PDF/学习笔记。重新部署或更新既有环境时运行 `./run-local.ps1 -InstallDependencies` 安装新增依赖。本次机器已安装。
+
+测试范围和实际结果见 [docs/AUDIO_COMPRESSION_VALIDATION.md](docs/AUDIO_COMPRESSION_VALIDATION.md)。音频、全文、备份和本地运行证据均不提交 GitHub。

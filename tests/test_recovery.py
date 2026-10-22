@@ -85,7 +85,10 @@ class RecoveryTests(unittest.TestCase):
                 def transcribe(self,*args,**kwargs):
                     return iter([SimpleNamespace(start=0,end=1,text='真实故障路径测试',avg_logprob=-.1,no_speech_prob=0)]),None
             def download(url,p):p.write_bytes(b'fixture')
-            with patch.object(w,'download',side_effect=download),patch.object(w,'decode_audio',return_value=(np.zeros(16000),{'sha256':'fixed','duration_seconds':1})),patch('faster_whisper.WhisperModel',Model):
+            def compress(source,root,probe,prior=None):
+                target=source.with_name('audio.mp3');target.write_bytes(b'compressed-fixture')
+                return target,{**probe,'sha256':w.sha256_file(target),'compression':{'source_sha256':'fixed','validated_full_decode':True,'settings':{'bit_rate':48000,'sample_rate':24000,'channels':1}}}
+            with patch.object(w,'download',side_effect=download),patch.object(w,'decode_audio',return_value=(np.zeros(16000),{'sha256':'fixed','duration_seconds':1})),patch('faster_whisper.WhisperModel',Model),patch.object(w,'ensure_compressed_audio',side_effect=compress):
                 self.assertEqual(w.consume(out,'small',3,None,str(queue),1),0)
             with patch.object(w,'download',side_effect=AssertionError('must skip')),patch.object(w,'decode_audio',side_effect=AssertionError('must skip')):
                 self.assertEqual(w.consume(out,'small',3,None,str(queue),1),0)
@@ -93,7 +96,7 @@ class RecoveryTests(unittest.TestCase):
             self.assertEqual(w.read_json(out/'worker-state.json',{})[row['key']]['attempts'],2)
             # A completed item at the head must not starve the next queued episode.
             w.atomic_json(queue,{'pending':[row,{**row,'key':'fixture:2'}]})
-            with patch.object(w,'download',side_effect=download),patch.object(w,'decode_audio',return_value=(np.zeros(16000),{'sha256':'fixed','duration_seconds':1})),patch('faster_whisper.WhisperModel',Model):
+            with patch.object(w,'download',side_effect=download),patch.object(w,'decode_audio',return_value=(np.zeros(16000),{'sha256':'fixed','duration_seconds':1})),patch('faster_whisper.WhisperModel',Model),patch.object(w,'ensure_compressed_audio',side_effect=compress):
                 self.assertEqual(w.consume(out,'small',1,None,str(queue),1),0)
             self.assertEqual(len(w.read_json(out/'completed.json',{})),2)
 

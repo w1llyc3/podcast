@@ -17,7 +17,7 @@ def archive(output,remote,dry_run=True):
     for row in completed.values():
         dest=Path(row['path']).resolve()
         relative=dest.relative_to(root)
-        args=[executable,'copy',str(dest),remote.rstrip('/')+'/'+relative.as_posix(),'--include','audio.m4a','--include','transcript.raw.json','--include','transcript.txt','--include','transcript.pdf','--include','summary.md','--include','metadata.json']
+        args=[executable,'copy',str(dest),remote.rstrip('/')+'/'+relative.as_posix(),'--include','audio.m4a','--include','audio.mp3','--include','transcript.raw.json','--include','transcript.txt','--include','transcript.pdf','--include','summary.md','--include','metadata.json']
         if dry_run:args.append('--dry-run')
         subprocess.run(args,check=True)
 
