@@ -90,8 +90,21 @@
       "6ac323a4e742e36efcbe8285",
       "6ac92d49e742e36efcc08d8e",
       "6ad5a095641ef406308dc30e",
-      "6ad66717285041df1c735ece"
+      "6ad66717285041df1c735ece",
+      "6adeb88797726cd46757a241"
     ]
   },
-  "pending": []
+  "pending": [
+    {
+      "key": "feigongshi20:6adeb88797726cd46757a241",
+      "feed_id": "feigongshi20",
+      "feed_name": "非共识20分钟",
+      "guid": "6adeb88797726cd46757a241",
+      "title": "非共识的加油站 06｜未来12个月，美元存款和美债会经历什么？我的展望",
+      "url": "https://www.xiaoyuzhoufm.com/episode/6adeb88797726cd46757a241?utm_source=rss",
+      "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6adeb88797726cd46757a241/media.xyzcdn.net/FvrBVq_EYhGwCXulvf-LtZudJLBE.m4a",
+      "published": "Mon, 26 Oct 2026 02:23:10 GMT",
+      "detected_at": "2026-10-26T06:18:19.288253+00:00"
+    }
+  ]
 }
