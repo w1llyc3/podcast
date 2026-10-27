@@ -91,7 +91,8 @@
       "6ac92d49e742e36efcc08d8e",
       "6ad5a095641ef406308dc30e",
       "6ad66717285041df1c735ece",
-      "6adeb88797726cd46757a241"
+      "6adeb88797726cd46757a241",
+      "6adfa44b97726cd46758201f"
     ]
   },
   "pending": [
@@ -105,6 +106,17 @@
       "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6adeb88797726cd46757a241/media.xyzcdn.net/FvrBVq_EYhGwCXulvf-LtZudJLBE.m4a",
       "published": "Mon, 26 Oct 2026 02:23:10 GMT",
       "detected_at": "2026-10-26T06:18:19.288253+00:00"
+    },
+    {
+      "key": "feigongshi20:6adfa44b97726cd46758201f",
+      "feed_id": "feigongshi20",
+      "feed_name": "非共识20分钟",
+      "guid": "6adfa44b97726cd46758201f",
+      "title": "Ep 56｜美国的债又快跟一年GDP一样大了，上一次是怎么降下来的？",
+      "url": "https://www.xiaoyuzhoufm.com/episode/6adfa44b97726cd46758201f?utm_source=rss",
+      "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6adfa44b97726cd46758201f/media.xyzcdn.net/6978a31df828d4e9f2787d3d/lm0j_8aS6hRqclhUlwVa-JmY-OBC.m4a",
+      "published": "Mon, 26 Oct 2026 23:30:00 GMT",
+      "detected_at": "2026-10-27T00:28:59.230534+00:00"
     }
   ]
 }
