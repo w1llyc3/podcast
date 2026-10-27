@@ -92,7 +92,8 @@
       "6ad5a095641ef406308dc30e",
       "6ad66717285041df1c735ece",
       "6adeb88797726cd46757a241",
-      "6adfa44b97726cd46758201f"
+      "6adfa44b97726cd46758201f",
+      "6ae10c1ac96c8942ec134c0a"
     ]
   },
   "pending": [
@@ -117,6 +118,17 @@
       "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6adfa44b97726cd46758201f/media.xyzcdn.net/6978a31df828d4e9f2787d3d/lm0j_8aS6hRqclhUlwVa-JmY-OBC.m4a",
       "published": "Mon, 26 Oct 2026 23:30:00 GMT",
       "detected_at": "2026-10-27T00:28:59.230534+00:00"
+    },
+    {
+      "key": "feigongshi20:6ae10c1ac96c8942ec134c0a",
+      "feed_id": "feigongshi20",
+      "feed_name": "非共识20分钟",
+      "guid": "6ae10c1ac96c8942ec134c0a",
+      "title": "Ep 57｜如果你活在七十年代的美国，第几年才会发现钱在缩水？",
+      "url": "https://www.xiaoyuzhoufm.com/episode/6ae10c1ac96c8942ec134c0a?utm_source=rss",
+      "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6ae10c1ac96c8942ec134c0a/media.xyzcdn.net/6978a31df828d4e9f2787d3d/lmoGs51rEmZVJczm-Mwya47wWwdq.m4a",
+      "published": "Tue, 27 Oct 2026 20:46:08 GMT",
+      "detected_at": "2026-10-27T22:58:29.425845+00:00"
     }
   ]
 }
