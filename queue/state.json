@@ -93,7 +93,8 @@
       "6ad66717285041df1c735ece",
       "6adeb88797726cd46757a241",
       "6adfa44b97726cd46758201f",
-      "6ae10c1ac96c8942ec134c0a"
+      "6ae10c1ac96c8942ec134c0a",
+      "6ae783bbc96c8942ec15b331"
     ]
   },
   "pending": [
@@ -129,6 +130,17 @@
       "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6ae10c1ac96c8942ec134c0a/media.xyzcdn.net/6978a31df828d4e9f2787d3d/lmoGs51rEmZVJczm-Mwya47wWwdq.m4a",
       "published": "Tue, 27 Oct 2026 20:46:08 GMT",
       "detected_at": "2026-10-27T22:58:29.425845+00:00"
+    },
+    {
+      "key": "feigongshi20:6ae783bbc96c8942ec15b331",
+      "feed_id": "feigongshi20",
+      "feed_name": "非共识20分钟",
+      "guid": "6ae783bbc96c8942ec15b331",
+      "title": "Ep 58｜十月股票和黄金一起跌，四十年里只有八个月，当时的人在怕什么？",
+      "url": "https://www.xiaoyuzhoufm.com/episode/6ae783bbc96c8942ec15b331?utm_source=rss",
+      "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6ae783bbc96c8942ec15b331/media.xyzcdn.net/6978a31df828d4e9f2787d3d/liHqvb0QniSt1qY-Y3sLWFdxWVQe.m4a",
+      "published": "Sun, 01 Nov 2026 22:30:00 GMT",
+      "detected_at": "2026-11-01T23:38:53.863229+00:00"
     }
   ]
 }
