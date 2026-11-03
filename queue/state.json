@@ -95,7 +95,8 @@
       "6adfa44b97726cd46758201f",
       "6ae10c1ac96c8942ec134c0a",
       "6ae783bbc96c8942ec15b331",
-      "6ae8c2b297726cd4675bbf93"
+      "6ae8c2b297726cd4675bbf93",
+      "6ae9a2e497726cd4675c1cb5"
     ]
   },
   "pending": [
@@ -153,6 +154,17 @@
       "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6ae8c2b297726cd4675bbf93/media.xyzcdn.net/FrTdju3uE56Bmw_XDj3AeyHHVW4k.m4a",
       "published": "Mon, 02 Nov 2026 22:30:00 GMT",
       "detected_at": "2026-11-02T23:35:14.086150+00:00"
+    },
+    {
+      "key": "feigongshi20:6ae9a2e497726cd4675c1cb5",
+      "feed_id": "feigongshi20",
+      "feed_name": "非共识20分钟",
+      "guid": "6ae9a2e497726cd4675c1cb5",
+      "title": "非共识的朋友圈 03 | 中期选举前夜：民主党能赢多少，市场又会怎样？ft. Kevin Chen & 王浩岚",
+      "url": "https://www.xiaoyuzhoufm.com/episode/6ae9a2e497726cd4675c1cb5?utm_source=rss",
+      "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6ae9a2e497726cd4675c1cb5/media.xyzcdn.net/6978a31df828d4e9f2787d3d/lt2ZQUN22FlJ3lXCWwYlookyGZ1j.m4a",
+      "published": "Tue, 03 Nov 2026 09:12:39 GMT",
+      "detected_at": "2026-11-03T15:13:10.303720+00:00"
     }
   ]
 }
