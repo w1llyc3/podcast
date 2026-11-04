@@ -23,9 +23,13 @@ for feed in FEEDS:
         print(f"{fid}: initialized baseline {len(ids)}")
         continue
     seen = set(state["feeds"][fid])
-    for item in reversed(parsed.entries):
+    unique_entries = {}
+    for item in parsed.entries:
         uid = str(item.get("id") or item.get("link") or "")
-        if not uid or uid in seen: continue
+        unique_entries.setdefault(uid, item)
+    for item in reversed(list(unique_entries.values())):
+        uid = str(item.get("id") or item.get("link") or "")
+        if not uid or uid in seen or fid + ":" + uid in known: continue
         key = fid + ":" + uid
         audio = next((e.get("href") for e in item.get("enclosures", []) if e.get("href")), "")
         state["pending"].append({"key": key, "feed_id": fid,
@@ -33,9 +37,11 @@ for feed in FEEDS:
             "title": item.get("title", ""), "url": item.get("link", ""),
             "audio_url": audio,
             "published": item.get("published", ""),
+            "rss_duration": item.get("itunes_duration", ""),
             "detected_at": datetime.now(timezone.utc).isoformat()})
         known.add(key)
     state["feeds"][fid] = sorted(seen.union(ids))
-state["pending"] = state["pending"][-500:]
-OUT.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+tmp = OUT.with_suffix(".tmp")
+tmp.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+tmp.replace(OUT)
 print("Total queued episodes:", len(state["pending"]))
