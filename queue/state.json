@@ -96,7 +96,8 @@
       "6ae10c1ac96c8942ec134c0a",
       "6ae783bbc96c8942ec15b331",
       "6ae8c2b297726cd4675bbf93",
-      "6ae9a2e497726cd4675c1cb5"
+      "6ae9a2e497726cd4675c1cb5",
+      "6af05a835b7c4709bfe2e330"
     ]
   },
   "pending": [
@@ -165,6 +166,17 @@
       "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6ae9a2e497726cd4675c1cb5/media.xyzcdn.net/6978a31df828d4e9f2787d3d/lt2ZQUN22FlJ3lXCWwYlookyGZ1j.m4a",
       "published": "Tue, 03 Nov 2026 09:12:39 GMT",
       "detected_at": "2026-11-03T15:13:10.303720+00:00"
+    },
+    {
+      "key": "feigongshi20:6af05a835b7c4709bfe2e330",
+      "feed_id": "feigongshi20",
+      "feed_name": "非共识20分钟",
+      "guid": "6af05a835b7c4709bfe2e330",
+      "title": "Ep 59 | 芯片股一天跌 12%：AI 是彻底反转，还是进入降温期？复盘历史上的 15 次暴跌",
+      "url": "https://www.xiaoyuzhoufm.com/episode/6af05a835b7c4709bfe2e330?utm_source=rss",
+      "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6af05a835b7c4709bfe2e330/media.xyzcdn.net/6978a31df828d4e9f2787d3d/lrrh-XSjKNS72rhdIFg74zs5vIQ-.m4a",
+      "published": "Sun, 08 Nov 2026 11:21:56 GMT",
+      "detected_at": "2026-11-08T15:16:36.593417+00:00"
     }
   ]
 }
