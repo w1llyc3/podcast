@@ -98,7 +98,8 @@
       "6ae8c2b297726cd4675bbf93",
       "6ae9a2e497726cd4675c1cb5",
       "6af05a835b7c4709bfe2e330",
-      "6af0d799b4a4e20202f6bf6c"
+      "6af0d799b4a4e20202f6bf6c",
+      "6af1a74fb4a4e20202f72d2b"
     ]
   },
   "pending": [
@@ -189,6 +190,17 @@
       "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6af0d799b4a4e20202f6bf6c/media.xyzcdn.net/FleOVSRx_1v5bXnlhMJkA8LyI_ti.m4a",
       "published": "Sun, 08 Nov 2026 20:29:53 GMT",
       "detected_at": "2026-11-08T23:45:42.567836+00:00"
+    },
+    {
+      "key": "feigongshi20:6af1a74fb4a4e20202f72d2b",
+      "feed_id": "feigongshi20",
+      "feed_name": "非共识20分钟",
+      "guid": "6af1a74fb4a4e20202f72d2b",
+      "title": "Ep 60 | 巴西股市一天暴跌 14%：巴西这场 30 年罕见的暴跌该怎么看？",
+      "url": "https://www.xiaoyuzhoufm.com/episode/6af1a74fb4a4e20202f72d2b?utm_source=rss",
+      "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6af1a74fb4a4e20202f72d2b/media.xyzcdn.net/6978a31df828d4e9f2787d3d/lhYSMT6stkHLsSPAxgfKHU5JwVCG.m4a",
+      "published": "Mon, 09 Nov 2026 11:04:41 GMT",
+      "detected_at": "2026-11-09T17:34:30.173133+00:00"
     }
   ]
 }
