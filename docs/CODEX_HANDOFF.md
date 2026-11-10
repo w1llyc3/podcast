@@ -1,4 +1,5 @@
 # Codex 开发交接｜Podcast → PDF（C 混合方案）
+> 2026-10-20 接手实测更新见 [P0_VALIDATION.md](P0_VALIDATION.md)。以下为原始交接背景；当前本地代码目录为 `D:\podcast\automation`，技术闭环和自动任务已实跑，逐句听校、Drive 实传及 ChatGPT 通知仍未完成。
 **仓库**：https://github.com/w1llyc3/podcast  
 **本地 Windows 程序目录建议**：D:\podcast-tool  
 **最终归档根目录**：D:\podcast  

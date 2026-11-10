@@ -1,0 +1,3 @@
+-r requirements-local.txt
+pypdf>=6,<7
+pymupdf>=1.24,<1.27
