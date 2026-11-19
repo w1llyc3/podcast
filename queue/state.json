@@ -99,7 +99,8 @@
       "6ae9a2e497726cd4675c1cb5",
       "6af05a835b7c4709bfe2e330",
       "6af0d799b4a4e20202f6bf6c",
-      "6af1a74fb4a4e20202f72d2b"
+      "6af1a74fb4a4e20202f72d2b",
+      "6afdf241fe62f8f52c4d4daa"
     ]
   },
   "pending": [
@@ -201,6 +202,17 @@
       "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6af1a74fb4a4e20202f72d2b/media.xyzcdn.net/6978a31df828d4e9f2787d3d/lhYSMT6stkHLsSPAxgfKHU5JwVCG.m4a",
       "published": "Mon, 09 Nov 2026 11:04:41 GMT",
       "detected_at": "2026-11-09T17:34:30.173133+00:00"
+    },
+    {
+      "key": "feigongshi20:6afdf241fe62f8f52c4d4daa",
+      "feed_id": "feigongshi20",
+      "feed_name": "非共识20分钟",
+      "guid": "6afdf241fe62f8f52c4d4daa",
+      "title": "Ep 61 | 芯片跌去 35%、超市创了新高：华尔街的钱到底在躲什么？",
+      "url": "https://www.xiaoyuzhoufm.com/episode/6afdf241fe62f8f52c4d4daa?utm_source=rss",
+      "audio_url": "https://dts-api.xiaoyuzhoufm.com/track/6978a31df828d4e9f2787d3d/6afdf241fe62f8f52c4d4daa/media.xyzcdn.net/6978a31df828d4e9f2787d3d/lvyuBh5wAz0CE_spjILI17N_4xrC.m4a",
+      "published": "Wed, 18 Nov 2026 23:30:00 GMT",
+      "detected_at": "2026-11-19T03:33:24.864056+00:00"
     }
   ]
 }
