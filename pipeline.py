@@ -2,6 +2,8 @@
 
 Designed to be re-run; persistent state is held in archive remote, not Actions artifacts.
 """
+if __name__ == "__main__":
+    raise SystemExit("Legacy cloud pipeline is disabled. Use run-local.ps1 for local processing.")
 import json, os, re, subprocess, tempfile, hashlib, shutil
 from pathlib import Path
 from datetime import datetime, timezone
